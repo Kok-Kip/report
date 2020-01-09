@@ -79,8 +79,8 @@
 	
 	
 	
-	% Part 2: describe the problems, better with math formations.
-	\section{Related Work}
+	% Part 2: Related Works.
+	\section{Related Works}
 	Nowadays, there are a great number of search engines that feed different kinds of users. Google is a popular search engine that performs well in nearly all kinds of searching. And Google Scholar is a document search system that contains millions of papers. PageRank facilitate Google in ranking valuable and popluar pages by considering their linking relationships in network. Bing performs better than other rivals in image searching across all browsers, while Search Encrypt focuses on information privacy by encrpting queries. And Yandex is the most popular search engine in Russia, offering a suite of pretty cool tools. So there are variour kinds of search engine and our project only concentrate on document searching.
 	
 	In terms of document retrieval, in SimSeerX, Kyle Williams presents a content-based document retrieval engine to allow a document-to-document query. There are three major algorigthm: Key Phrase Similarity, Shingle Similarity and Simhash Similarty. Key Phrase Similarity is mainly based on BM25, extracting key words from a formatted document. Shingle Similarty is inspired by k-gram algorithm. It first generates a serious of shinglings and then hashes words to number in order to calculate similarity. Simhash Similarity maps a document into a 64-bits vector and then use the hamming distance to determine the similarity between two documents. 
@@ -88,25 +88,26 @@
 	Most of the methods mentioned above prefer to compress a document into a high dimension vector, which may cause a considerable information loss and thus lead to a huge amount computation. Therefore, we put our effor to use new advanced methods to optimize query result, like word embedding. Our ultimate aim is to deliver good quality result in a short time.
 	
 	
-	% Part 3: methods used in this project.
+	% Part 3: Design and Alogrithm
 	\section{Design and Algorithm}
 	As our search engine mainly focuses on document retrieval, we concentrate on developing a score system to deliver good result to users. Our score system combines three algorithms: tf-idf, bm25 and word embedding. The simple reason why we choose these methods is that they complement each other. While tf-idf and bm25 prefer exact matching and valuable words, word embedding favors related words based on semantic similarity. Inspired by the idea of model bagging, we assign different weight to these algorithms and add them linearly. By doing so, we can both capture those key words and return the most relevant document. Also we have other tricks to improve the quality and efficiency of searching. In the following passage we are going to elaborate the details of implementation.
 	
 	
-	
-	% Part 4: Implementation Details.
+	% Part 3.1: Dataset
 	\subsection{Document Dataset}
 	All documents are download from a chinese news website. The size of our dataset is about 100 and we may enlarge it in the future if we have enough compuatational resource.
 	
 	
-	% Part 5: Experiment Result
+	% Part 3.2: Database
 	\subsection{Database Design}
 	Database storage is of utmost significance for a search engine. A well-designed storage structure may benefit search efficiency. We prefer construct our database offline in order to speed up query time. We store words, documents and their relationship seperately in three tables. Also, out of consideration for computation, we store word embedding for each word in database as bytes, we can significantly reduce calculating time when a query is requested.
+   Because database model is not the main point of this report, you can gain more details in Github, where we place our design doc.
 	
-	
+	% Part 3.3: Algorithm
 	\subsection{Algorithm}
 	Currently we have ensembled three different algorithms to calculate score.
 	
+	% Part 3.3.1: TF-IDF
 	\subsubsection{TF-IDF}
 	In the information retrieval system, we first adopt TF-IDF(Term Frequency Inverse Document Frequency) algorithm to calculate the word relevance in document queries. It's a really popular algorithm  [In the information retrieval system, we first adopt TF-IDF algorithm to calculate.md](In the information retrieval system, we first adopt TF-IDF algorithm to calculate.md) which has been used by most online search engines.The algorithm weighs a term's frequency in a document and calculate its inverse document frequency through all the documents. The product of the TF and IDF of the term is the final score for the document in a query.
 	
@@ -116,6 +117,7 @@
 	
 	In the system, we get the query, remove the empty words, throw in the function and then we can get the relevant scores of all the documents, which make us efficient to get the most favorite document in the query.
 	
+	% Part 3.3.2: BM25
 	\subsubsection{BM25}
 	To improve the performance of the system, we also apply BM25 algorithm to make up the TF-IDF. Although BM25 is based on TF-IDF, it comes from probabilistic information retrieval in which relevance score can reflect the probability a user will consider the result relevant. Compared with TF-IDF, BM25 use document length to make the score more accurate. Here the formula is given by:
 	\[ W_{t,d} = \frac{f_t (k_1+1)}{f_t+K}
@@ -124,6 +126,7 @@
 	
 	It can be shown in the definition of K, the factor $b$ decides how the length of the document can affect the score. The bigger $b$ gets, the more influence the length make on the relevance. Due to such a wonderful feature, we import BM25 to make the system work better.
 	
+	% Part 3.3.3: Word Embedding
 	\subsubsection{Word Embedding}
 	In this project, we use the most popular word embedding model -- word2Vec model. It can be obtained using two methods: Skip Gram and Common Bag Of Words(CBOW). The input is the one-hot encoding of a word and the output is the probability of the occurance of other words. The higher probability between two words, the closer they stay in the semantic space.
 	
@@ -140,12 +143,13 @@
 	Undoubtedly it is time-consuming and extremely difficult to train a good model by us own in such short time. Luckily, with the help of Tencent AI Lab Embedding Corpus for Chinese Words and Phrases, we are able to construct a word2Vec model easily in Python. However for a real time search engine, it still takes long time to load from the dataset, so we decide just use a portion of it. By doing experienments repeatly, we make a trade-off between accuracy and efficency. And finally we use 700,000 records out of 8, 000, 000 in the dataset, which still deliver good search results.
 	
 	
-	% Part 8: Acknowledge
+	% Part 4: Experiment Result
 	\section{Result}
-	We evaluate our product from vairous angles. Firstly, we care about the used time when a query is requested. Here we use end-to-end time to evaluate the speed of a query. Second, we expect a good result but it is difficult to quantify. Questionnaire is a good alternative but we don't have many users. So instead we merely evaluate the result based on our feeling. 
+	We evaluate our product from vairous angles. Firstly, we care about the latency of a query. Here we use end-to-end time to evaluate the speed of a query. Second, we expect a good result but it is difficult to quantify. Questionnaire is a good alternative but we don't have many users. So instead we merely evaluate the result based on our feeling. 
 	
-	\subsection{MainPage}
-	We have implemented a beautiful website to present our result. Some snapshots are diplayed as follows.
+	% Part 4.1: MainPage
+	\subsection{Search Engine MainPage}
+	We have implemented a beautiful website to present our results. Some snapshots are diplayed as follows.
 
 	\begin{figure}[H]
 		\centering
@@ -166,7 +170,10 @@
 		\centering
 	\end{figure}
 	
+	% Part 4.2: Search Result
 	\subsection{Search Result}
+
+	% Part 4.2.1: Query 1
 	\subsubsection{Query Word: 细胞}
 	\begin{figure}[H]
 		\centering
@@ -207,6 +214,7 @@
 	\end{figure}
 	Pay attention to the second picture, We can see the 4th document does not exactly contain the query word, but its content, mostly relevant to clone technology, is greatly related to the query word. That what embedding could bring to us!
 	
+	% Part 4.2.2: Query 2
 	\subsubsection{Query Word: 中国}
 	\begin{figure}[H]
 		\centering
@@ -247,6 +255,7 @@
 	\end{figure}
 	From picture 2 again, we can see that the 2nd document talks about India, which is semanticly close to our query word, which proves our embedding technology works well.
 	
+	% Part 4.2.3: Query 3
 	\subsubsection{Query Word: 气候}
 	\begin{figure}[H]
 		\centering
@@ -286,17 +295,35 @@
 		\centering
 	\end{figure}
 	As you can see, all documents returned are very relevant to the query word.
+
+	% Part 4.3 Latency Metrics
+	\subsection{Latency Metrics}
+	 End-to-end latency is an importance metrics for a search engine so we should also report our latency. We obtain latency data from server log. The average e2e latency is about 8 seconds. TFIDF costs 0.15 seconds, and BM25 costs 0.02 seconds, while Word Embedding costs approximately 2 seconds. The rest of latency is used for document parsing.
+   Given the fact that we do not use index in our database and we just run this server on a laptops, a 2 seconds latency in our calculation is definitely acceptable. What we can optimize is that we could store the documents in database so that we do not need to parse them every time, which could reduce latency drastically.
 	
+	% Part 5 Future Work
 	\section{Future Work}
 	Our engine is largely limited by the embedding model. We can access the Tencent Corpus Dataset, but it is unlikely to load it into a word2Vec model due to its large size. Thus what we neet to do is that we should filter those high frequency words from the dataset and load them into a model, which could improve search accuracy greatly.
-	Also, our dataset size is too small to support a popular document searching. We may support incremental documents and thus enlarge our document pool to return more relevant results.
+	Also, our dataset size is too small to support a popular document searching. We may support incremental documents and thus enlarge our document pool to return more relevant results.And it would be better to store the files in database instead of parsing them every time. Of course constructing index would benefit query efficiency.
 	Morover, we may try to extract information from documents if they share a similar content structure. This may provide more significant information regarding themselves.
 	Last, we are going to deploy this service in a remote server so we may have more computational resource. But it will take some time to find a suitable machine.
 	
+	% Part 6 Summary
 	\section{Summary}
-	Given limited time and resources, it's quite amazing for our team to finish this project. From design to implementation, we all do it by our own, without any reference. The most thing we want to present in this project is that we learn from Information Retrieval Course this term. Benefitting from Scrum, we assure our product's quality and have a clear division and cooperation. As depicted above, our search engine achieves good performance in this dataset and we believe it could perform well in other dataset.
-	In a word, thanks for contributions from each member and we will perfect this project in the future.
+	Given limited time and resources, it's quite amazing for our team to finish this project. From design to implementation, we all do it by our own, without any reference. The most thing we want to present in this project is what we learn from Information Retrieval Course in this semester. Benefitting from Scrum, we assure our product's quality and have a clear division and cooperation. As depicted above, our search engine achieves good performance in this dataset and we believe it could perform well in other dataset.
+	From this project, we have a deeper understanding of document retrieval, especially those relevant score algorithms. There is still a clear gap between an excellent search engine and what we have achieved. And we will perfect this project in the future.
+
+	% Part 7 Acknowledge
+	\section{Acknowledge}
+	Sincerely thanks for Professor Shangsong Liang's supervision and suggestion during our development process.
 	
+	% Part 8 Division
+	\section{Division}
+	Yucheng Liang: Project Leader, is mainly responsible for project management, product design and backend development, as well as report writing. 
+
+	Junhua Liang: Developer, is mainly responsible for frontend design, development, testing, report formatting as well.
+	
+	Guangtao Zeng: Developer, is mainly responsible for backend development, report writing as well.
 	
 	\bibliographystyle{unsrt}  
 	%\bibliography{references}  %%% Remove comment to use the external .bib file (using bibtex).
